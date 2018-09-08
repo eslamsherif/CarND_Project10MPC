@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+*.1
+*.f
+/Ipopt-3.12.10/Ipopt/test/hs071_nlp.hpp
+/Ipopt-3.12.10/Ipopt/test/hs071_nlp.cpp
+/Ipopt-3.12.10/Ipopt/test/hs071_main.cpp
+/Ipopt-3.12.10/Ipopt/test/hs071_c.c

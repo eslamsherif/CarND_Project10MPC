@@ -1,0 +1,10 @@
+prefix=/usr/local
+libdir=/mnt/e/Backup/SelfDrivingNanoDegree/Term2/20_MPC/CarND_Project10MPC/Ipopt-3.12.10/Ipopt/src/Apps/AmplSolver
+
+Name: IPOPT
+Description: Ampl Interface TNLP to Ipopt
+URL: https://projects.coin-or.org/Ipopt
+Version: 3.12.10
+Libs: ${libdir}/libipoptamplinterface.la 
+Cflags: -I/mnt/e/Backup/SelfDrivingNanoDegree/Term2/20_MPC/CarND_Project10MPC/Ipopt-3.12.10/Ipopt/src/Apps/AmplSolver
+Requires: ipopt coinasl 
