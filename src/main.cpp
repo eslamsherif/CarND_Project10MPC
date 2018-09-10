@@ -98,18 +98,55 @@ int main() {
           * Both are in between [-1, 1].
           *
           */
-          double steer_value;
-          double throttle_value;
+
+
+          unsigned int loopcnt = ptsx.size();
+          if(ptsx.size() != ptsy.size())
+          {
+            cout << "ptsx element count is not equal to ptsy element count." << endl;
+            loopcnt = min(ptsx.size(), ptsy.size());
+          }
+
+          Eigen::VectorXd Eptsx(loopcnt);
+          Eigen::VectorXd Eptsy(loopcnt);
+
+          for(unsigned int i = 0; i < loopcnt; i++)
+          {
+              Eptsx(i) = ptsx[i];
+              Eptsy(i) = ptsy[i];
+          }
+
+          /* Unlike in the lessons the road here is curved and most roads */
+          /* can be modeled by a 3rd order polynomial                     */
+          Eigen::VectorXd fit_curve = polyfit(Eptsx, Eptsy, 3);
+          double cte  = polyeval(fit_curve, px) - py;
+          double epsi = psi - atan(fit_curve[1]);
+
+          Eigen::VectorXd state(STATE_CNT);
+          state << px, py, psi, v, cte, epsi;
+
+          auto vars = mpc.Solve(state, fit_curve);
+
+          double steer_value    = vars[0]/deg2rad(25);
+          double throttle_value = vars[1];
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = steer_value;
+          msgJson["steering_angle"] = steer_value/deg2rad(25);
           msgJson["throttle"] = throttle_value;
 
           //Display the MPC predicted trajectory 
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
+
+          for (unsigned int i = 2; i < vars.size(); i++ ) {
+            if ( i % 2 == 0 ) {
+              mpc_x_vals.push_back( vars[i] );
+            } else {
+              mpc_y_vals.push_back( vars[i] );
+            }
+          }
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
@@ -120,6 +157,16 @@ int main() {
           //Display the waypoints/reference line
           vector<double> next_x_vals;
           vector<double> next_y_vals;
+
+          double poly_inc = 2.5;
+          int num_points = 25;
+
+          for (int i = 1; i < num_points; i++)
+          {
+            double x = poly_inc * i;
+            next_x_vals.push_back(x);
+            next_y_vals.push_back(polyeval(fit_curve,x));
+          }
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
