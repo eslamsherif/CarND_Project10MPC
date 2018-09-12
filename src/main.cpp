@@ -12,6 +12,15 @@
 // for convenience
 using json = nlohmann::json;
 
+static void PrintVector(string str, const Eigen::VectorXd prnt)
+{
+    /* IOFormat inspired from https://eigen.tuxfamily.org/dox/structEigen_1_1IOFormat.html */
+    const Eigen::IOFormat fmt(4, 0, ",\t", "", "\n\t[", "]");
+
+    cout << str << prnt.format(fmt) << endl;
+    cout << endl;
+}
+
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
@@ -77,7 +86,7 @@ int main() {
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
     string sdata = string(data).substr(0, length);
-    cout << sdata << endl;
+    // cout << sdata << endl;
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2') {
       string s = hasData(sdata);
       if (s != "") {
@@ -125,9 +134,11 @@ int main() {
           Eigen::VectorXd state(STATE_CNT);
           state << px, py, psi, v, cte, epsi;
 
+          PrintVector("Coeffs", fit_curve);
+          PrintVector("State", state);
           auto vars = mpc.Solve(state, fit_curve);
 
-          double steer_value    = vars[0]/deg2rad(25);
+          double steer_value    = vars[0];
           double throttle_value = vars[1];
 
           json msgJson;
@@ -140,10 +151,15 @@ int main() {
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
-          for (unsigned int i = 2; i < vars.size(); i++ ) {
-            if ( i % 2 == 0 ) {
+          /* Collect all model predicted points, start from 2 as 0 and 1 were control inputs */
+		  for (unsigned int i = 2; i < vars.size(); i++ )
+		  {
+            if ( i % 2 == 0 )
+			{
               mpc_x_vals.push_back( vars[i] );
-            } else {
+            } 
+			else
+			{
               mpc_y_vals.push_back( vars[i] );
             }
           }
@@ -157,15 +173,11 @@ int main() {
           //Display the waypoints/reference line
           vector<double> next_x_vals;
           vector<double> next_y_vals;
-
-          double poly_inc = 2.5;
-          int num_points = 25;
-
-          for (int i = 1; i < num_points; i++)
+		  /* predicted the actual x and y points according the fitted points. */
+          for (int i = 1; i < 50; i++)
           {
-            double x = poly_inc * i;
-            next_x_vals.push_back(x);
-            next_y_vals.push_back(polyeval(fit_curve,x));
+            next_x_vals.push_back(i);
+            next_y_vals.push_back(polyeval(fit_curve, i));
           }
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
@@ -176,7 +188,7 @@ int main() {
 
 
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
+          // std::cout << msg << std::endl;
           // Latency
           // The purpose is to mimic real driving conditions where
           // the car does actuate the commands instantly.
