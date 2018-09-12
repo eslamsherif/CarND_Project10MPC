@@ -121,18 +121,21 @@ int main() {
 
           for(unsigned int i = 0; i < loopcnt; i++)
           {
-              Eptsx(i) = ptsx[i];
-              Eptsy(i) = ptsy[i];
+            double x = ptsx[i] - px;
+            double y = ptsy[i] - py;
+            Eptsx(i) = ((x * cos(-psi)) - (y * sin(-psi)));
+            Eptsy(i) = ((x * sin(-psi)) + (y * cos(-psi)));
           }
 
           /* Unlike in the lessons the road here is curved and most roads */
           /* can be modeled by a 3rd order polynomial                     */
           Eigen::VectorXd fit_curve = polyfit(Eptsx, Eptsy, 3);
-          double cte  = polyeval(fit_curve, px) - py;
-          double epsi = psi - atan(fit_curve[1]);
+
+          double cte  = polyeval(fit_curve, 0);
+          double epsi = -atan(fit_curve[1]);
 
           Eigen::VectorXd state(STATE_CNT);
-          state << px, py, psi, v, cte, epsi;
+          state << 0, 0, 0, v, cte, epsi;
 
           PrintVector("Coeffs", fit_curve);
           PrintVector("State", state);
