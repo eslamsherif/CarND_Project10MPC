@@ -1,9 +1,0 @@
-prefix=/usr/local
-libdir=/mnt/e/Backup/SelfDrivingNanoDegree/Term2/20_MPC/CarND_Project10MPC/Ipopt-3.12.10/ThirdParty/ASL
-
-Name: ASL
-Description: AMPL Solver Library
-URL: https://projects.coin-or.org/BuildTools
-Version: 1.4.0
-Libs: ${libdir}/libcoinasl.la -lm -ldl 
-Cflags: -I/mnt/e/Backup/SelfDrivingNanoDegree/Term2/20_MPC/CarND_Project10MPC/Ipopt-3.12.10/ThirdParty/ASL -I/mnt/e/Backup/SelfDrivingNanoDegree/Term2/20_MPC/CarND_Project10MPC/Ipopt-3.12.10/ThirdParty/ASL/solvers
